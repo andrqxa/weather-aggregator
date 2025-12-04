@@ -51,8 +51,13 @@ _testmain.go
 # === Project specific ===
 *.json
 /tmp
-weather
 Notes.md
+
+# Ignore build output
+/weather
+/weather.exe
+
+!cmd/weather
 
 # === Docker specific ===
 **/db-data/*
