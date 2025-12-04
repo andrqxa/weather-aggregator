@@ -14,12 +14,12 @@ all: build
 ## Build binary
 build:
 	@echo "▶ Building..."
-	@go build -o $(BINARY_NAME) $(CMD)
+	@go build -o $(BINARY_NAME) ./$(CMD)
 
 ## Run application
 run:
 	@echo "▶ Running..."
-	@go run $(CMD)
+	@go run ./$(CMD)
 
 ## Run tests
 test:
