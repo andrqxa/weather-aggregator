@@ -1,0 +1,33 @@
+# First line: short and imperative. Max ~70 chars.
+# Examples:
+#   Add weather fetcher for OpenMeteo
+#   Fix scheduler overlap on slow API responses
+#   Refactor storage interface for clarity
+#   Improve error handling in API
+#   Remove unused cache layer
+
+<type a short summary here>
+
+# Empty line required above. Do not remove it.
+
+# Detailed description:
+# - Explain what was changed and why.
+# - Provide context and motivation.
+# - Mention edge cases or side effects.
+# - Bullet points are welcome for clarity.
+#
+# Example:
+#
+# Implement concurrent weather fetching from two providers.
+# Normalized responses into a shared WeatherData model.
+# Added retry logic with exponential backoff.
+#
+# - added internal/weather/openweather_client.go
+# - added internal/weather/openmeteo_client.go
+# - introduced WeatherData struct
+# - handled HTTP timeout and provider errors
+#
+# If the change is trivial, the body can remain empty.
+
+<add a detailed explanation here if needed>
+
