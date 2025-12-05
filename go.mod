@@ -2,7 +2,10 @@ module github.com/andrqxa/weather-aggregator
 
 go 1.25.4
 
-require github.com/gofiber/fiber/v2 v2.52.10
+require (
+	github.com/gofiber/fiber/v2 v2.52.10
+	github.com/joho/godotenv v1.5.1
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
