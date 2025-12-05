@@ -39,6 +39,7 @@ type Forecast struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
+// AggregatedWeather is what we will store and serve via API.
 type AggregatedWeather struct {
 	Current  CurrentWeather `json:"current"`
 	Forecast Forecast       `json:"forecast"`
