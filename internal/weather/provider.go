@@ -15,7 +15,7 @@ type Provider interface {
 	Name() string
 
 	// FetchCurrent returns normalized current weather data for a given city.
-	FetchCurrent(ctx context.Context, city string, from, to time.Time) (CurrentWeather, error)
+	FetchCurrent(ctx context.Context, city string) (CurrentWeather, error)
 
 	// FetchForecast returns normalized forecast for a given city
 	// in the provided time range.

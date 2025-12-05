@@ -27,7 +27,7 @@ func (owp *OpenWeatherProvider) Name() string {
 
 // FetchCurrent returns stubbed error for now.
 // Real implementation will call external API.
-func (owp *OpenWeatherProvider) FetchCurrent(ctx context.Context, city string, from, to time.Time) (CurrentWeather, error) {
+func (owp *OpenWeatherProvider) FetchCurrent(ctx context.Context, city string) (CurrentWeather, error) {
 	return CurrentWeather{}, ErrProviderUnavailable
 }
 
