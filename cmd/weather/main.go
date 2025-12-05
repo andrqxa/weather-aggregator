@@ -1,15 +1,40 @@
 package main
 
 import (
-	"log"
+	"log/slog"
+	"os"
 
+	"github.com/andrqxa/weather-aggregator/internal/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
+func initLogger() *slog.Logger {
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+	logg := slog.New(handler)
+	slog.SetDefault(logg)
+	return logg
+}
+
 func main() {
+
+	// Init logger
+	log := initLogger()
+
+	//Init config
+	cfg := config.Load()
+
+	log.Info("configuration loaded",
+		"port", cfg.Port,
+		"fetch_interval", cfg.FetchInterval.String(),
+		"default_cities", cfg.DefaultCities,
+		"api_key_set", cfg.WeatherAPIKey != "",
+	)
+
 	// Fiber init
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
@@ -30,11 +55,16 @@ func main() {
 
 	// Health check
 	v1.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "ok"})
+		return c.JSON(fiber.Map{
+			"status":         "ok",
+			"default_cities": cfg.DefaultCities,
+			"fetch_interval": cfg.FetchInterval.String(),
+			"api_key_set":    cfg.WeatherAPIKey != "",
+		})
 	})
 
-	log.Println("Starting server on :3000")
-	if err := app.Listen(":3000"); err != nil {
-		log.Fatalf("server failed: %v", err)
+	log.Info("starting server", "port", cfg.Port)
+	if err := app.Listen(":" + cfg.Port); err != nil {
+		log.Error("server failed", "error", err)
 	}
 }
