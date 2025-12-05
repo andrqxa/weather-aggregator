@@ -20,7 +20,7 @@ func NewOpenMeteoProvider(baseURL string) *OpenMeteoProvider {
 
 // Name returns provider identifier.
 func (omp *OpenMeteoProvider) Name() string {
-	return "openmeteo"
+	return string(SourceOpenMeteo)
 }
 
 // FetchCurrent returns stubbed error for now.

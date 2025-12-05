@@ -22,7 +22,7 @@ func NewOpenWeatherProvider(baseURL, apiKey string) *OpenWeatherProvider {
 
 // Name returns provider identifier.
 func (owp *OpenWeatherProvider) Name() string {
-	return "openweather"
+	return string(SourceOpenWeather)
 }
 
 // FetchCurrent returns stubbed error for now.

@@ -8,6 +8,7 @@ type Source string
 const (
 	SourceOpenWeather Source = "openweather"
 	SourceOpenMeteo   Source = "openmeteo"
+	SourceWeatherAPI  Source = "weatherapi"
 )
 
 // CurrentWeather represents normalized current weather data.
