@@ -19,18 +19,18 @@ func NewOpenMeteoProvider(baseURL string) *OpenMeteoProvider {
 }
 
 // Name returns provider identifier.
-func (omp *OpenMeteoProvider) Name() string {
+func (p *OpenMeteoProvider) Name() string {
 	return string(SourceOpenMeteo)
 }
 
 // FetchCurrent returns stubbed error for now.
 // Real implementation will call external API.
-func (omp *OpenMeteoProvider) FetchCurrent(ctx context.Context, city string) (CurrentWeather, error) {
+func (p *OpenMeteoProvider) FetchCurrent(ctx context.Context, city string) (CurrentWeather, error) {
 	return CurrentWeather{}, ErrProviderUnavailable
 }
 
 // FetchForecast returns stubbed error for now.
 // Real implementation will call external API.
-func (omp *OpenMeteoProvider) FetchForecast(ctx context.Context, city string, from, to time.Time) (Forecast, error) {
+func (p *OpenMeteoProvider) FetchForecast(ctx context.Context, city string, from, to time.Time) (Forecast, error) {
 	return Forecast{}, ErrProviderUnavailable
 }
