@@ -3,7 +3,6 @@ package weather
 import (
 	"context"
 	"errors"
-	"time"
 )
 
 // Provider describes a weather data provider.
@@ -18,8 +17,8 @@ type Provider interface {
 	FetchCurrent(ctx context.Context, city string) (CurrentWeather, error)
 
 	// FetchForecast returns normalized forecast for a given city
-	// in the provided time range.
-	FetchForecast(ctx context.Context, city string, from, to time.Time) (Forecast, error)
+	// for the specified number of days.
+	FetchForecast(ctx context.Context, city string, days int) (Forecast, error)
 }
 
 var (

@@ -2,7 +2,6 @@ package weather
 
 import (
 	"context"
-	"time"
 )
 
 // WeatherAPIComProvider is a stub implementation of Provider for the WeatherAPICom API.
@@ -33,6 +32,6 @@ func (p *WeatherAPIComProvider) FetchCurrent(ctx context.Context, city string) (
 
 // FetchForecast returns stubbed error for now.
 // Real implementation will call external API.
-func (p *WeatherAPIComProvider) FetchForecast(ctx context.Context, city string, from, to time.Time) (Forecast, error) {
+func (p *WeatherAPIComProvider) FetchForecast(ctx context.Context, city string, days int) (Forecast, error) {
 	return Forecast{}, ErrProviderUnavailable
 }

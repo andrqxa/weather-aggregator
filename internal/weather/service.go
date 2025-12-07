@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"time"
 )
 
 type Service struct {
@@ -37,11 +36,11 @@ func (s *Service) GetCurrentWeather(ctx context.Context, city string) (CurrentWe
 
 // GetForecast tries the providers sequentially.
 // Later this will be improved with aggregation.
-func (s *Service) GetForecast(ctx context.Context, city string, from, to time.Time) (Forecast, error) {
+func (s *Service) GetForecast(ctx context.Context, city string, days int) (Forecast, error) {
 	for _, p := range s.providers {
 		slog.Info("fetching forecast", "provider", p.Name(), "city", city)
 
-		w, err := p.FetchForecast(ctx, city, from, to)
+		w, err := p.FetchForecast(ctx, city, days)
 		if err != nil {
 			logProviderError("forecast", p, city, err)
 			continue

@@ -2,7 +2,6 @@ package weather
 
 import (
 	"context"
-	"time"
 )
 
 // OpenMeteoProvider is a stub implementation of Provider for the Open-Meteo API.
@@ -31,6 +30,6 @@ func (p *OpenMeteoProvider) FetchCurrent(ctx context.Context, city string) (Curr
 
 // FetchForecast returns stubbed error for now.
 // Real implementation will call external API.
-func (p *OpenMeteoProvider) FetchForecast(ctx context.Context, city string, from, to time.Time) (Forecast, error) {
+func (p *OpenMeteoProvider) FetchForecast(ctx context.Context, city string, days int) (Forecast, error) {
 	return Forecast{}, ErrProviderUnavailable
 }

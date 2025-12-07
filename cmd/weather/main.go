@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"os"
-	"time"
+	"strconv"
 
 	"github.com/andrqxa/weather-aggregator/internal/config"
 	"github.com/andrqxa/weather-aggregator/internal/weather"
@@ -101,7 +101,7 @@ func main() {
 		return c.JSON(w)
 	})
 
-	// GET /api/v1/weather/forecast?city=London&from=2025-12-05T00:00:00Z&to=2025-12-06T00:00:00Z
+	// GET /api/v1/weather/forecast?city=London&days=1
 	weatherGroup.Get("/forecast", func(c *fiber.Ctx) error {
 		city := c.Query("city")
 		if city == "" {
@@ -110,53 +110,30 @@ func main() {
 			})
 		}
 
-		fromStr := c.Query("from")
-		toStr := c.Query("to")
+		rawDays := c.Query("days")
 
-		var (
-			from time.Time
-			to   time.Time
-			err  error
-		)
+		if rawDays == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "days query parameter is required",
+			})
+		}
 
-		if fromStr == "" && toStr == "" {
-			// Default: forecast for the next 24 hours
-			from = time.Now().UTC()
-			to = from.Add(24 * time.Hour)
-		} else {
-			if fromStr == "" || toStr == "" {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error": "both from and to query parameters must be provided or both omitted",
-				})
-			}
-
-			from, err = time.Parse(time.RFC3339, fromStr)
-			if err != nil {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error":   "invalid from parameter, expected RFC3339",
-					"example": time.Now().UTC().Format(time.RFC3339),
-				})
-			}
-
-			to, err = time.Parse(time.RFC3339, toStr)
-			if err != nil {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error":   "invalid to parameter, expected RFC3339",
-					"example": time.Now().UTC().Add(24 * time.Hour).Format(time.RFC3339),
-				})
-			}
-
-			if !to.After(from) {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"error": "`to` must be after `from`",
-				})
-			}
+		days, err := strconv.Atoi(rawDays)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "invalid days parameter, expected integer",
+			})
+		}
+		if days < 1 || days > 7 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "days parameter must be in the 1 - 7 limit",
+			})
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
 		defer cancel()
 
-		fc, err := svc.GetForecast(ctx, city, from, to)
+		fc, err := svc.GetForecast(ctx, city, days)
 		if err != nil {
 			return mapServiceError(c, err)
 		}
