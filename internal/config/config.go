@@ -11,10 +11,12 @@ import (
 
 // Config holds application configuration values
 type Config struct {
-	Port          string
-	FetchInterval time.Duration
-	WeatherAPIKey string
-	DefaultCities []string
+	Port                 string
+	FetchInterval        time.Duration
+	OpenWeatherMapAPIKey string
+	WeatherAPIKey        string
+	RequestTimeout       time.Duration
+	DefaultCities        []string
 }
 
 // Load loads configuration from environment variables or .env file.
@@ -23,10 +25,12 @@ func Load() *Config {
 	_ = godotenv.Load()
 
 	return &Config{
-		Port:          getEnv("FIBER_PORT", "3000"),
-		WeatherAPIKey: getEnv("WEATHER_API_KEY", ""),
-		FetchInterval: getDuration("FETCH_INTERVAL", 15*time.Minute),
-		DefaultCities: parseCities(getEnv("DEFAULT_CITIES", "London")),
+		Port:                 getEnv("FIBER_PORT", "3000"),
+		FetchInterval:        getDuration("FETCH_INTERVAL", 15*time.Minute),
+		OpenWeatherMapAPIKey: getEnv("OPENWEATHERMAP_API_KEY", ""),
+		WeatherAPIKey:        getEnv("WEATHERAPI_API_KEY", ""),
+		RequestTimeout:       getDuration("REQUEST_TIMEOUT", 5*time.Second),
+		DefaultCities:        parseCities(getEnv("DEFAULT_CITIES", "London")),
 	}
 }
 

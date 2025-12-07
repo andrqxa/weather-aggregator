@@ -12,9 +12,9 @@ type OpenMeteoProvider struct {
 }
 
 // NewOpenMeteoProvider creates a new OpenMeteoProvider instance.
-func NewOpenMeteoProvider(baseURL string) *OpenMeteoProvider {
+func NewOpenMeteoProvider() *OpenMeteoProvider {
 	return &OpenMeteoProvider{
-		baseURL: baseURL,
+		baseURL: "https://api.open-meteo.com",
 	}
 }
 

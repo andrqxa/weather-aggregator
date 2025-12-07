@@ -13,9 +13,9 @@ type WeatherAPIComProvider struct {
 }
 
 // NewWeatherAPIComProvider creates a new WeatherAPIComProvider instance.
-func NewWeatherAPIComProvider(baseURL, apiKey string) *WeatherAPIComProvider {
+func NewWeatherAPIComProvider(apiKey string) *WeatherAPIComProvider {
 	return &WeatherAPIComProvider{
-		baseURL: baseURL,
+		baseURL: "https://api.weatherapi.com/v1",
 		apiKey:  apiKey,
 	}
 }
