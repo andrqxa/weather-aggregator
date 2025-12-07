@@ -6,8 +6,10 @@ import (
 	"log/slog"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/andrqxa/weather-aggregator/internal/config"
+	"github.com/andrqxa/weather-aggregator/internal/storage"
 	"github.com/andrqxa/weather-aggregator/internal/weather"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -31,6 +33,9 @@ func main() {
 
 	//Init config
 	cfg := config.Load()
+
+	// Init storage
+	store := storage.NewInMemoryStore()
 
 	log.Info("configuration loaded",
 		"port", cfg.Port,
@@ -77,6 +82,7 @@ func main() {
 			"openweathermap_key": cfg.OpenWeatherMapAPIKey != "",
 			"weatherapi_key":     cfg.WeatherAPIKey != "",
 			"request_timeout":    cfg.RequestTimeout.String(),
+			"last_fetch":         store.LastFetchTimes(),
 		})
 	})
 
@@ -91,6 +97,11 @@ func main() {
 			})
 		}
 
+		// Try cache first
+		if cw, ok := store.GetCurrent(city); ok {
+			return c.JSON(cw)
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
 		defer cancel()
 
@@ -98,6 +109,10 @@ func main() {
 		if err != nil {
 			return mapServiceError(c, err)
 		}
+
+		// Save to storage with current time as fetch timestamp
+		store.SaveCurrent(city, w, time.Now().UTC())
+
 		return c.JSON(w)
 	})
 
@@ -130,6 +145,11 @@ func main() {
 			})
 		}
 
+		// Try cache first
+		if fc, ok := store.GetForecast(city, days); ok {
+			return c.JSON(fc)
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
 		defer cancel()
 
@@ -137,6 +157,8 @@ func main() {
 		if err != nil {
 			return mapServiceError(c, err)
 		}
+
+		store.SaveForecast(city, days, fc, time.Now().UTC())
 
 		return c.JSON(fc)
 	})
