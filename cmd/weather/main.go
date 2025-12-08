@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/andrqxa/weather-aggregator/internal/config"
+	"github.com/andrqxa/weather-aggregator/internal/scheduler"
 	"github.com/andrqxa/weather-aggregator/internal/storage"
 	"github.com/andrqxa/weather-aggregator/internal/weather"
 	"github.com/gofiber/fiber/v2"
@@ -50,6 +51,22 @@ func main() {
 	providers := initProviders(cfg)
 
 	svc := weather.NewService(providers)
+
+	// Initialize scheduler (e.g. 1-day forecast by default).
+	const defaultForecastDays = 1
+
+	sched := scheduler.NewScheduler(
+		svc,
+		store,
+		cfg.DefaultCities,
+		cfg.FetchInterval,
+		cfg.RequestTimeout,
+		defaultForecastDays,
+		log,
+	)
+
+	// Start scheduler in background.
+	go sched.Start(context.Background())
 
 	// Fiber init
 	app := fiber.New(fiber.Config{
