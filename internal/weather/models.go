@@ -26,6 +26,8 @@ type CurrentWeather struct {
 type ForecastItem struct {
 	TimeStamp   time.Time `json:"timestamp"`
 	Temperature float64   `json:"temperature"` // Celsius
+	Humidity    int       `json:"humidity"`    // %
+	WindSpeed   float64   `json:"wind_speed"`  // m/s
 	Description string    `json:"description"`
 	Source      Source    `json:"source"`
 }
@@ -34,9 +36,7 @@ type ForecastItem struct {
 type Forecast struct {
 	City      string         `json:"city"`
 	Items     []ForecastItem `json:"items"`
-	From      time.Time      `json:"from"`
-	To        time.Time      `json:"to"`
-	Source    Source         `json:"source"`
+	Days      int            `json:"days"`
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
