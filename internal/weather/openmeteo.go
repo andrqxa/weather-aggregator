@@ -168,7 +168,7 @@ func (p *OpenMeteoProvider) FetchForecast(ctx context.Context, city string, days
 	}
 
 	endpoint := "https://api.open-meteo.com/v1/forecast"
-	
+
 	q := url.Values{}
 	q.Set("latitude", fmt.Sprintf("%f", coords.Lat))
 	q.Set("longitude", fmt.Sprintf("%f", coords.Lon))
