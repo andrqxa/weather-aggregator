@@ -19,7 +19,7 @@ build:
 ## Run application
 run:
 	@echo "▶ Running..."
-	@go run ./$(CMD)
+	@go run ./$(CMD) || true
 
 ## Run tests
 test:
