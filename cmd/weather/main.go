@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/andrqxa/weather-aggregator/internal/config"
@@ -47,9 +50,16 @@ func main() {
 		"default_cities", cfg.DefaultCities,
 	)
 
-	// Initialize weather providers.
-	providers := initProviders(cfg)
+	// Root context with OS signals for graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(),
+		os.Interrupt,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+	defer stop()
 
+	// Initialize weather providers and service
+	providers := initProviders(cfg)
 	svc := weather.NewService(providers)
 
 	// Initialize scheduler (e.g. 1-day forecast by default).
@@ -66,7 +76,7 @@ func main() {
 	)
 
 	// Start scheduler in background.
-	go sched.Start(context.Background())
+	go sched.Start(ctx)
 
 	// Fiber init
 	app := fiber.New(fiber.Config{
@@ -119,10 +129,10 @@ func main() {
 			return c.JSON(cw)
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
+		ctxReq, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
 		defer cancel()
 
-		w, err := svc.GetCurrentWeather(ctx, city)
+		w, err := svc.GetCurrentWeather(ctxReq, city)
 		if err != nil {
 			return mapServiceError(c, err)
 		}
@@ -167,10 +177,10 @@ func main() {
 			return c.JSON(fc)
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
+		ctxReq, cancel := context.WithTimeout(context.Background(), cfg.RequestTimeout)
 		defer cancel()
 
-		fc, err := svc.GetForecast(ctx, city, days)
+		fc, err := svc.GetForecast(ctxReq, city, days)
 		if err != nil {
 			return mapServiceError(c, err)
 		}
@@ -180,15 +190,40 @@ func main() {
 		return c.JSON(fc)
 	})
 
-	log.Info("starting server", "port", cfg.Port)
-	if err := app.Listen(":" + cfg.Port); err != nil {
-		log.Error("server failed", "error", err)
+	// Run Fiber server in background
+	go func() {
+		log.Info("starting server", "port", cfg.Port)
+		if err := app.Listen(":" + cfg.Port); err != nil {
+			if ctx.Err() == nil {
+				log.Error("server failed", "error", err)
+			} else {
+				log.Info("server stopped", "reason", "context canceled")
+			}
+		}
+	}()
+
+	// Wait for termination signal
+	<-ctx.Done()
+	log.Info("shutdown signal received")
+
+	// Stop Fiber gracefully
+	if err := app.Shutdown(); err != nil {
+		log.Error("failed to shutdown server", "error", err)
+	} else {
+		log.Info("server gracefully stopped")
 	}
+
+	// Scheduler сам завершится по ctx.Done()
+	log.Info("scheduler stopped")
 }
 
 func initProviders(cfg *config.Config) []weather.Provider {
+	httpClient := &http.Client{
+		Timeout: cfg.RequestTimeout,
+	}
+
 	providers := []weather.Provider{
-		weather.NewOpenMeteoProvider(),
+		weather.NewOpenMeteoProvider(httpClient),
 	}
 
 	if cfg.OpenWeatherMapAPIKey != "" {
